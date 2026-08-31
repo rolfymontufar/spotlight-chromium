@@ -286,7 +286,7 @@
       row.dataset.index = String(i);
 
       var rail = result.rail || result.sources;
-      if (rail && rail.length) row.appendChild(buildRail(rail));
+      if (rail?.length) row.appendChild(buildRail(rail));
 
       var icon = el('span', 'sl-icon');
       paintIcon(icon, result);
