@@ -53,7 +53,7 @@ export const LIMITS = {
   // Longest prefix of a field we bother scoring.
   MAX_FIELD_LEN: 160,
   // Rows handed back to the UI (the web-search row is extra).
-  MAX_RESULTS: 8,
+  MAX_RESULTS: 12,
 };
 
 // Per-character scoring for the fuzzy matcher. Raw points, normalised later.
