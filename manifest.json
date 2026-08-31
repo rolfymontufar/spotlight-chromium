@@ -1,0 +1,70 @@
+{
+  "manifest_version": 3,
+  "name": "Chromium Spotlight",
+  "version": "0.1.0",
+  "description": "Spotlight-style fuzzy search over your bookmarks, history and open tabs.",
+  "minimum_chrome_version": "114",
+
+  "permissions": [
+    "bookmarks",
+    "history",
+    "tabs",
+    "favicon",
+    "storage",
+    "search",
+    "scripting"
+  ],
+  "host_permissions": ["<all_urls>"],
+
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+
+  "action": {
+    "default_title": "Chromium Spotlight",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "src/ui/spotlight.css.js",
+        "src/ui/spotlight.js",
+        "src/content/content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "web_accessible_resources": [
+    {
+      "resources": ["_favicon/*"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "commands": {
+    "toggle-spotlight": {
+      "suggested_key": {
+        "default": "Ctrl+K",
+        "mac": "Command+K"
+      },
+      "description": "Open Spotlight"
+    }
+  }
+}
