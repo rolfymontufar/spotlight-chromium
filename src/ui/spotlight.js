@@ -118,10 +118,17 @@
     return /mac/i.test(platform);
   }
 
-  function dispositionFor(event) {
-    if (event.metaKey || event.ctrlKey) return 'newTab';
+  /**
+   * On a content page the default protects whatever is already open (new tab,
+   * modifier reuses the current one). On the home/new-tab page there is
+   * nothing to protect, so it is the other way round: default reuses the
+   * tab, modifier explicitly asks for a new one.
+   */
+  function dispositionFor(event, mode) {
     if (event.shiftKey) return 'newWindow';
-    return 'current';
+    var modifier = event.metaKey || event.ctrlKey;
+    if (mode === 'popup') return modifier ? 'newTab' : 'current';
+    return modifier ? 'current' : 'newTab';
   }
 
   function mount(options) {
@@ -175,8 +182,13 @@
 
     var sources = el('div', 'sl-sources');
     var hints = el('div', 'sl-hints');
-    hints.appendChild(hint('Open', ['return']));
-    hints.appendChild(hint('New tab', [MOD, 'return']));
+    if (mode === 'popup') {
+      hints.appendChild(hint('Open', ['return']));
+      hints.appendChild(hint('New tab', [MOD, 'return']));
+    } else {
+      hints.appendChild(hint('New tab', ['return']));
+      hints.appendChild(hint('Open here', [MOD, 'return']));
+    }
     hints.appendChild(hint('Dismiss', ['esc']));
 
     var footer = el('div', 'sl-footer');
@@ -320,7 +332,7 @@
         event.preventDefault(); // keep focus in the input
       });
       row.addEventListener('click', function (event) {
-        activate(i, dispositionFor(event));
+        activate(i, dispositionFor(event, mode));
       });
 
       return row;
@@ -493,7 +505,7 @@
           return true;
         case 'Enter':
           event.preventDefault();
-          activate(selected, dispositionFor(event));
+          activate(selected, dispositionFor(event, mode));
           return true;
         case 'Tab':
           event.preventDefault();

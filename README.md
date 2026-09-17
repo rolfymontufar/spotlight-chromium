@@ -33,14 +33,28 @@ plain JavaScript and CSS, loaded as-is.
 | --- | --- |
 | `⌘K` / `Ctrl+K` | Open Spotlight (so does clicking the toolbar icon) |
 | `↑` `↓` (or `Ctrl+P` / `Ctrl+N`) | Move through results |
-| `return` | Open in the current tab, or switch to the tab if it is already open |
-| `⌘ return` / `Ctrl+return` | Open in a new tab |
+| `return` | Open, or switch to the tab if it is already open (see below) |
+| `⌘ return` / `Ctrl+return` | Open the other way (see below) |
 | `⇧ return` | Open in a new window |
 | `tab` | Fill the input with the selected URL |
 | `esc` | Dismiss |
 
 Opening with an empty query shows your most recent and most used pages, so it
 is useful before you type anything.
+
+What plain `return` does depends on whether there is anything on screen to
+lose:
+
+- **On a page with content**, `return` opens in a new tab, so it never
+  replaces what you were looking at. `⌘ return` / `Ctrl+return` opens in the
+  current tab instead.
+- **On the new tab page, or anywhere else with nothing to protect** (a
+  `brave://` page, the Web Store, devtools), it is the other way round:
+  `return` reuses the current tab, and `⌘ return` / `Ctrl+return` opens a new
+  one.
+
+Either way, a result that is already an open tab is switched to instead of
+being reloaded, unless you hold the modifier for a fresh copy.
 
 ### Choosing what gets searched
 
