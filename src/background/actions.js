@@ -50,12 +50,20 @@ export async function activateTab(tabId, windowId) {
   }
 }
 
+const SEARCH_DISPOSITION = {
+  current: 'CURRENT_TAB',
+  newTab: 'NEW_TAB',
+  newWindow: 'NEW_WINDOW',
+};
+
 /** Uses whatever the user set as their default engine in Brave. */
-export async function webSearch(text) {
+export async function webSearch(text, disposition) {
+  const chromeDisposition = SEARCH_DISPOSITION[disposition] || 'NEW_TAB';
   try {
-    await chrome.search.query({ text, disposition: 'NEW_TAB' });
+    await chrome.search.query({ text, disposition: chromeDisposition });
   } catch {
-    await chrome.tabs.create({ url: 'https://search.brave.com/search?q=' + encodeURIComponent(text), active: true });
+    const url = 'https://search.brave.com/search?q=' + encodeURIComponent(text);
+    await openUrl(url, disposition);
   }
 }
 
@@ -65,7 +73,7 @@ export async function run(action) {
   if (!result) return;
 
   if (result.type === SOURCE.SEARCH) {
-    await webSearch(result.query);
+    await webSearch(result.query, disposition);
     return;
   }
 
