@@ -75,6 +75,25 @@
     window[method]('keypress', onKey, true);
   }
 
+  // ---------------------------------------------------------------- focus
+
+  // Page modals trap focus: a focusin or focusout outside the modal makes
+  // them pull focus straight back in, so typing never reaches our input. The
+  // closed shadow root retargets these events to the host, so any focus event
+  // involving the host is ours and the page has no business seeing it.
+  //
+  // Always on rather than tied to the key guard, because show() focuses the
+  // input before the key guard is switched on.
+  function onFocus(event) {
+    if (panel.owns(event.target) || panel.owns(event.relatedTarget)) {
+      event.stopImmediatePropagation();
+    }
+  }
+
+  ['focusin', 'focusout', 'focus', 'blur'].forEach(function (type) {
+    window.addEventListener(type, onFocus, true);
+  });
+
   // Losing the window means the user went somewhere else. Spotlight dismisses
   // itself in that situation and so do we.
   window.addEventListener('blur', function () {

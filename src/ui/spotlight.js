@@ -141,6 +141,9 @@
     var host = el('div');
     host.setAttribute('data-spotlight-host', '');
     host.setAttribute('data-mode', mode);
+    // react-focus-lock (Atlaskit, so Jira and Confluence, plus many others)
+    // leaves focus alone inside anything carrying this attribute.
+    host.setAttribute('data-no-focus-lock', '');
     Object.keys(HOST_STYLE).forEach(function (prop) {
       host.style.setProperty(prop, HOST_STYLE[prop], 'important');
     });
@@ -549,12 +552,31 @@
 
     // ------------------------------------------------------- open / close
 
+    /**
+     * A modal <dialog> makes everything outside it inert, and no z-index gets
+     * above the top layer it lives in. So while one is open the host moves
+     * inside it, and goes back to the container on close.
+     */
+    function attach() {
+      var target = container;
+      if (mode === 'overlay') {
+        try {
+          var dialogs = document.querySelectorAll('dialog:modal');
+          if (dialogs.length) target = dialogs[dialogs.length - 1];
+        } catch (e) {
+          /* :modal not supported, stay where we are */
+        }
+      }
+      if (host.parentNode !== target) target.appendChild(host);
+    }
+
     function show() {
       if (open) {
         input.select();
         return;
       }
       open = true;
+      attach();
       host.style.setProperty('display', 'block', 'important');
       input.value = '';
       results = [];
@@ -578,6 +600,7 @@
         debounceTimer = null;
       }
       input.blur();
+      if (host.parentNode !== container) container.appendChild(host);
       if (transport.close) transport.close();
     }
 
@@ -589,6 +612,19 @@
     // ------------------------------------------------------------ wiring
 
     input.addEventListener('input', schedule);
+
+    // Last line of defence against page focus traps that do not go through
+    // focus events (some re-check activeElement on every re-render): if focus
+    // is taken while we are open, take it back. Clicks outside the panel close
+    // it, and losing the window closes it too, so nothing legitimate is fought.
+    input.addEventListener('blur', function () {
+      if (!open || mode !== 'overlay') return;
+      setTimeout(function () {
+        if (open && document.hasFocus() && shadow.activeElement !== input) {
+          input.focus({ preventScroll: true });
+        }
+      }, 0);
+    });
     backdrop.addEventListener('mousedown', function (event) {
       event.preventDefault();
       close();
@@ -620,6 +656,10 @@
       handleKey: handleKey,
       isOpen: function () {
         return open;
+      },
+      /** True for the host element, which is all the page sees of the panel. */
+      owns: function (node) {
+        return node === host;
       },
       destroy: function () {
         host.remove();
